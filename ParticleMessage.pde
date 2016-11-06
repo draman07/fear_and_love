@@ -5,6 +5,7 @@ class ParticleMessage extends LabeledParticle {
   color col;
   String name;
   int[] signal;
+  String type;
    
   ParticleMessage(float x, float y, String label, int id, String name) {
     super(x,y,label);
@@ -25,6 +26,10 @@ class ParticleMessage extends LabeledParticle {
   
   void setColour(color C) {
     this.col = C;
+  }
+  
+  void show() {
+    
   }
 }
 

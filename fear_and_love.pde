@@ -46,6 +46,7 @@ int[][] signal;
 
 PFont font;
 PFont fontsmall;
+PFont fontextrasmall;
 
 String peopleFile = "people.csv"; // edit this file inside the data folder to name and colour the people particles
 String placesFile = "places.csv"; // edit this file inside the data folder to name and locate the places particles
@@ -65,12 +66,24 @@ AttractionBehavior mouseAttractor;
 AttractionBehavior centreAttractor;
 
 Twitter twitter;
-List<Status> tweets;
-int currentTweet;
+List<Status> fear_tweets;
+List<Status> love_tweets;
+List<PImage> fear_pictures;
+List<PImage> love_pictures;
+int currentFearTweet;
+int currentLoveTweet;
 ArrayList<String> tWords = new ArrayList();
 
-String loveString = "#love";
-String fearString = "#fear";
+//String fearSearchString = "@designmuseum";
+//String loveSearchString = "@arupgroup";
+
+String fearSearchString = "fear";
+String loveSearchString = "love";
+
+color fear_color = color(0,255,0);
+color love_color = color(255,0,255);
+
+String imgTemp = null;
 
 void setup() {
   //size(1280, 1024);
@@ -81,15 +94,24 @@ void setup() {
   
   // twitter stuff
   ConfigurationBuilder cb = new ConfigurationBuilder();
+  /*
   cb.setOAuthConsumerKey("tjkuTdwPXGZ3iSEFvqiQonVtE");
   cb.setOAuthConsumerSecret("jexA6felupzws9rQKUHmFClr2POdn7BDQ0Ay87S8G6bviEgKhd");
   cb.setOAuthAccessToken("2882966836-0Zp60El0zAkzHUIq132dqvJKqujRtvEBjbPOHWS");
   cb.setOAuthAccessTokenSecret("VB9sxqQUKqx4C5Fy7KdSVewGi5wJcW1TVZov7Sms8UuQi");
+  */
+  
+  cb.setOAuthConsumerKey("8gwWMe6zG63lqmwYZaRUibf0a");
+  cb.setOAuthConsumerSecret("Ibnnj7wjAwgiltf903iPJDiMxSzeREmCQURN7XnCTN9D1s96VV");
+  cb.setOAuthAccessToken("793523469535350784-uYIBol8DMbNWdww3rRxs6oPNQ7dvh7u");
+  cb.setOAuthAccessTokenSecret("cVzj7Klp8xCJphANaDO7PZoosi44UOUJjqHnNy9QfYiqr");
+  
   
   TwitterFactory tf = new TwitterFactory(cb.build());
   twitter = tf.getInstance();
-  //getNewTweets();
-  //currentTweet = 0;
+  getNewTweets();
+  currentFearTweet = 0;
+  currentLoveTweet = 0;
   //thread("refreshTweets");
 
   // physics stuff
@@ -99,6 +121,7 @@ void setup() {
 
   font = loadFont("SansSerif-48.vlw");
   fontsmall = loadFont("SansSerif-24.vlw");
+  fontextrasmall = loadFont("SansSerif-12.vlw");
   textFont(font);
 
   // the Synapse system is not used for this installation, but keeping some legacy code in here just in case ...
@@ -118,16 +141,27 @@ void setup() {
   for (int i=0; i<NUM_DOTS; i++) {
     addDot(width/2, height/2);
   }
+  
+  // populate tweet pictures list
+  for (int i=0; i<NUM_MESSAGES;i++) {
+    PImage img = createImage(100, 100, RGB);
+    //fear_pictures.add(img);
+    //love_pictures.add(img);
+  }
+  println(fear_pictures);
+  
 }
 
 void draw() {
   current_time = millis();
   current_smooth_time = millis();
   background(bgcol);
+  
   tint(255, 255/4);  // display the Arup logo at 1/4 opacity
   //if (showLogo) image(logo, width/2-logo.width/2, height/2-logo.height/2);
   if (showLogo) image(logo, width/2-logo.width/2, height-logo.height-10);
   tint(255, 255);
+  
   physics.update();    // update the toxiclibs particle system
   stroke(255, 255, 255);
   noStroke();
@@ -221,6 +255,7 @@ void draw() {
       if (debug) text("tag: "+t.label+" / reader: "+r.location+" / distance: " +q, 20, height-100);
     }
   }
+  
   if (current_time > (previous_time + reset_time*1000)) {
 
     if (doReset) {
@@ -228,6 +263,7 @@ void draw() {
       physics.addBehavior(centreAttractor);
       if (debug) println("reset");
     }
+    getNewTweets();
     previous_time = current_time;
   } 
   else {
@@ -273,8 +309,27 @@ void draw() {
       fill(lp.col);
       Vec2D v = p.getVelocity();
       tint(255, 50);
-      ellipse(p.x, p.y, 50, 50);
+      //ellipse(p.x, p.y, 50, 50);
       tint(255, 255);
+      if (showLabels)
+      {
+        //println(lp.id);
+        textFont(fontextrasmall);
+        Status messageStatus = fear_tweets.get(lp.id);
+        if (lp.id<NUM_MESSAGES) {
+          messageStatus = fear_tweets.get(lp.id);
+          fill(fear_color);
+        }
+        if (lp.id>=NUM_MESSAGES) {
+          messageStatus = love_tweets.get(lp.id);
+          fill(love_color);
+        }
+        drawTweet(messageStatus, p.x-20, p.y+5);
+        fill(255,255,255);
+        
+        //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
+        textFont(font);
+      }
       if (debug) {
         fill(255,0,0);
         textFont(fontsmall);
@@ -321,6 +376,8 @@ void mouseReleased() {
 
 void keyPressed() {
   if (key=='r') {
+    // refresh Tweets
+    getNewTweets();
     // reset the particle simulation
     initPhysicsTest();
     for (int i=0; i<NUM_DOTS; i++) {
