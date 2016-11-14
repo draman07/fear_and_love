@@ -14,9 +14,16 @@ import twitter4j.auth.*;
 import twitter4j.api.*;
 import java.util.*;
 
-int NUM_MESSAGES = 15;  // number of big particles associated with messages
+//String fearSearchString = "source:aruplightlab fear";
+//String loveSearchString = "source:aruplightlab love";
+
+String fearSearchString = "designmuseum";
+String loveSearchString = "arupgroup";
+
+int NUM_MESSAGES = 10;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
 int NUM_DOTS = 1200; // number of small particles used to visualise the force field
+int MESSAGE_SIZE = 100; // pixel size of floating messages
 
 //boolean showFullscreen = true;   // switch to turn fullscreen on or off
 boolean demo = true;         // switch to use signals from Synapse RF100 physical devices (false) or demo signals (true)
@@ -68,20 +75,18 @@ AttractionBehavior centreAttractor;
 Twitter twitter;
 List<Status> fear_tweets;
 List<Status> love_tweets;
-List<PImage> fear_pictures;
-List<PImage> love_pictures;
+List<Status> home_tweets;
+ArrayList<PImage> fear_pictures = new ArrayList();
+ArrayList<PImage> love_pictures = new ArrayList();
+ArrayList<PImage> home_pictures = new ArrayList();
 int currentFearTweet;
 int currentLoveTweet;
-ArrayList<String> tWords = new ArrayList();
-
-//String fearSearchString = "@designmuseum";
-//String loveSearchString = "@arupgroup";
-
-String fearSearchString = "fear";
-String loveSearchString = "love";
+int currentHomeTweet;
+//ArrayList<String> tWords = new ArrayList();
 
 color fear_color = color(0,255,0);
 color love_color = color(255,0,255);
+color home_color = color(255,255,255);
 
 String imgTemp = null;
 
@@ -109,7 +114,7 @@ void setup() {
   
   TwitterFactory tf = new TwitterFactory(cb.build());
   twitter = tf.getInstance();
-  getNewTweets();
+  
   currentFearTweet = 0;
   currentLoveTweet = 0;
   //thread("refreshTweets");
@@ -145,10 +150,14 @@ void setup() {
   // populate tweet pictures list
   for (int i=0; i<NUM_MESSAGES;i++) {
     PImage img = createImage(100, 100, RGB);
-    //fear_pictures.add(img);
-    //love_pictures.add(img);
+    fear_pictures.add(img);
+    love_pictures.add(img);
+    home_pictures.add(img);
+
   }
   println(fear_pictures);
+  
+  getNewTweets();
   
 }
 
@@ -316,15 +325,18 @@ void draw() {
         //println(lp.id);
         textFont(fontextrasmall);
         Status messageStatus = fear_tweets.get(lp.id);
+        String what = "";
         if (lp.id<NUM_MESSAGES) {
           messageStatus = fear_tweets.get(lp.id);
+          what = "fear";
           fill(fear_color);
         }
         if (lp.id>=NUM_MESSAGES) {
           messageStatus = love_tweets.get(lp.id);
+          what = "love";
           fill(love_color);
         }
-        drawTweet(messageStatus, p.x-20, p.y+5);
+        drawTweet(messageStatus, what, lp.id, p.x-20, p.y+5);
         fill(255,255,255);
         
         //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
@@ -348,7 +360,7 @@ void draw() {
 void initPhysicsTest() {
   physics=new VerletPhysics2D();
   physics.setDrag(0.05);
-  physics.setWorldBounds(new Rect(0+50, 0+50, width-100, height-100));
+  physics.setWorldBounds(new Rect(0, 0, width, height));
   getPlaces(placesFile);
   getPeople(peopleFile);
 }

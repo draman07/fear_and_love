@@ -4,29 +4,56 @@ void getNewTweets()
   {
       // try to get tweets here
       Query fearQuery = new Query(fearSearchString);
-      fearQuery.setCount(30);
+      fearQuery.setCount(50);
       Query loveQuery = new Query(loveSearchString);
-      loveQuery.setCount(30);
+      loveQuery.setCount(50);
       QueryResult fearResult = twitter.search(fearQuery);
       QueryResult loveResult = twitter.search(loveQuery);
       fear_tweets = fearResult.getTweets();
       love_tweets = loveResult.getTweets();
+      home_tweets = twitter.getUserTimeline();
+      
       println("Got new tweets");
+      println(fear_tweets);
+      println(fear_tweets.size());
       println(fear_pictures);
-      // put tweets first image into list of pictures / fear
-      for (int i=0; i<fear_tweets.size();i++) {
+      println(fear_pictures.size());
+      println(love_tweets);
+      println(love_tweets.size());
+      println(love_pictures);
+      println(love_pictures.size());
+      print("home_tweets: ");
+      println(home_tweets);
+
+      // put tweets first image into list of pictures 
+      for (int i=0; i<NUM_MESSAGES;i++) {
         Status fearStatus = fear_tweets.get(i);
         MediaEntity[] media_entity = fearStatus.getMediaEntities();
         if (media_entity.length>0) {
           MediaEntity media = media_entity[0];
           String imageURL = media.getMediaURL();
           PImage img = loadImage(imageURL); 
-          //fear_pictures.set(i,img);
-          //if (fear_pictures.size()>i) {
-          //  fear_pictures.set(i,img);
-          //} else {
-          //  fear_pictures.add(i,img);
-          //}
+          println(img);
+          fear_pictures.set(i,img);
+        }
+        Status loveStatus = love_tweets.get(i);
+        media_entity = loveStatus.getMediaEntities();
+        if (media_entity.length>0) {
+          MediaEntity media = media_entity[0];
+          String imageURL = media.getMediaURL();
+          PImage img = loadImage(imageURL); 
+          println(img);
+          love_pictures.set(i,img);
+        }
+        Status homeStatus = home_tweets.get(i);
+        media_entity = homeStatus.getMediaEntities();
+        println(media_entity.length);
+        if (media_entity.length>0) {
+          MediaEntity media = media_entity[0];
+          String imageURL = media.getMediaURL();
+          PImage img = loadImage(imageURL); 
+          println(img);
+          home_pictures.set(i,img);
         }
       }
   }
@@ -52,7 +79,7 @@ void refreshTweets()
     }
 }
 
-void drawTweet(Status thisStatus, float x, float y)
+void drawTweet(Status thisStatus, String what, int id, float x, float y)
 {
   MediaEntity[] media_entity = thisStatus.getMediaEntities();
   if (media_entity.length>0) {
@@ -63,12 +90,27 @@ void drawTweet(Status thisStatus, float x, float y)
     //PImage img = loadImage(imageURL); 
     //int w = media.getSizes().get(1).getWidth();
     //int h = media.getSizes().get(1).getHeight();
-    //image(img, x, y, w/4, h/4);
-    text(thisStatus.getText(), x-75, y-75, 150, 150);
+    if (what=="fear") {
+      PImage img = fear_pictures.get(id);
+      int w = img.width;
+      int h = img.height;
+      //image(img, x, y, w/4, h/4);
+      //tint(0, 255, 0, 200);
+      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+    }
+    if (what=="love") {
+      PImage img = love_pictures.get(id-fear_pictures.size());
+      int w = img.width;
+      int h = img.height;
+      tint(255, 0, 255, 200);
+      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+    }
+    text(thisStatus.getText(), x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
     //println("Array: "+fear_media);
     //println(fear_media.length);
+    tint(0,255);
   } else {
-    text(thisStatus.getText(), x-75, y-75, 150, 150);
+    text(thisStatus.getText(), x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
   }
 }
 
