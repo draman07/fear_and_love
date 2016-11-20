@@ -14,16 +14,20 @@ import twitter4j.auth.*;
 import twitter4j.api.*;
 import java.util.*;
 
+
+
 //String fearSearchString = "source:aruplightlab fear";
 //String loveSearchString = "source:aruplightlab love";
 
-String fearSearchString = "designmuseum";
-String loveSearchString = "arupgroup";
+String fearSearchString = "fear";
+String loveSearchString = "%23love";
 
-int NUM_MESSAGES = 10;  // number of big particles associated with messages
+int NUM_TWEETS = 100;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
-int NUM_DOTS = 1200; // number of small particles used to visualise the force field
-int MESSAGE_SIZE = 100; // pixel size of floating messages
+int NUM_DOTS = 500; // number of small particles used to visualise the force field
+int MESSAGE_SIZE = 150; // pixel size of floating messages
+int MESSAGE_SCALE = 7;
+
 
 //boolean showFullscreen = true;   // switch to turn fullscreen on or off
 boolean demo = true;         // switch to use signals from Synapse RF100 physical devices (false) or demo signals (true)
@@ -32,22 +36,24 @@ boolean showLabels = true;  // switch to display particle labels
 boolean doReset = true;      // switch to enable reset
 boolean showLogo = false;    // show logo
 
-float reset_time = 20;  // update time in seconds for reset - at reset time a central attractor is created
+float reset_time = 60;  // update time in seconds for reset - at reset time a central attractor is created
 float smooth_time = 2;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
 
 color bgcol = color(0, 0, 0);       // background colour
 color lcol = color(200, 200, 255);  // line colour
-color tcol = color(50, 50, 120);    // people colour
-color rcol = color(90, 50, 10);     // places colour
+color tcol = color(255,255,255);    // tweets colour
+color rcol = color(90, 50, 10);     // hashtags colour
 
 VerletPhysics2D physics;
 
 PImage logo;
 
-ArrayList people;
-ArrayList places;
-ArrayList attractors_people;
-ArrayList attractors_places;
+ArrayList tweets;
+ArrayList hashtags;
+ArrayList attractors_tweets;
+ArrayList attractors_hashtags;
+ArrayList springs_tweets;
+
 
 int[][] signal;
 
@@ -55,8 +61,10 @@ PFont font;
 PFont fontsmall;
 PFont fontextrasmall;
 
-String peopleFile = "people.csv"; // edit this file inside the data folder to name and colour the people particles
-String placesFile = "places.csv"; // edit this file inside the data folder to name and locate the places particles
+//String peopleFile = "people.csv"; // edit this file inside the data folder to name and colour the people particles
+//String placesFile = "places.csv"; // edit this file inside the data folder to name and locate the places particles
+
+String hashtagsFile = "hashtags.csv";
 
 Serial myPort;
 String inString;  // input string from serial port 
@@ -76,9 +84,14 @@ Twitter twitter;
 List<Status> fear_tweets;
 List<Status> love_tweets;
 List<Status> home_tweets;
+List<Status> all_tweets;
+
+ArrayList<String> all_hashtags = new ArrayList(); 
+
 ArrayList<PImage> fear_pictures = new ArrayList();
 ArrayList<PImage> love_pictures = new ArrayList();
 ArrayList<PImage> home_pictures = new ArrayList();
+ArrayList<PImage> tweets_pictures = new ArrayList();
 int currentFearTweet;
 int currentLoveTweet;
 int currentHomeTweet;
@@ -119,10 +132,23 @@ void setup() {
   currentLoveTweet = 0;
   //thread("refreshTweets");
 
+  // populate tweet pictures list
+  for (int i=0; i<NUM_TWEETS;i++) {
+    PImage img = createImage(100, 100, RGB);
+    fear_pictures.add(img);
+    love_pictures.add(img);
+    home_pictures.add(img);
+    tweets_pictures.add(img);
+    //HashtagEntity h = new HashtagEntity();
+    all_hashtags.add("");
+  }
+  //println(tweets_pictures.size());
+
+
   // physics stuff
   initPhysicsTest();
 
-  signal = new int[places.size()][people.size()];
+  signal = new int[hashtags.size()][tweets.size()];
 
   font = loadFont("SansSerif-48.vlw");
   fontsmall = loadFont("SansSerif-24.vlw");
@@ -147,15 +173,6 @@ void setup() {
     addDot(width/2, height/2);
   }
   
-  // populate tweet pictures list
-  for (int i=0; i<NUM_MESSAGES;i++) {
-    PImage img = createImage(100, 100, RGB);
-    fear_pictures.add(img);
-    love_pictures.add(img);
-    home_pictures.add(img);
-
-  }
-  println(fear_pictures);
   
   getNewTweets();
   
@@ -185,7 +202,7 @@ void draw() {
       //fill(255,0,0);
       //ellipse(p.x, p.y, 30, 30);
     } 
-    else if (j<(NUM_MESSAGES+NUM_HASHTAGS)) {
+    else if (j<(NUM_TWEETS+NUM_HASHTAGS)) {
       // don't draw messages yet
       //fill(0,0,255);
       //ellipse(p.x, p.y, 10, 10);
@@ -196,17 +213,17 @@ void draw() {
       ellipse(p.x, p.y, 4, 4);
     }
     j++;
-    if (j>(NUM_MESSAGES+NUM_HASHTAGS+NUM_DOTS)) j=0;
+    if (j>(NUM_TWEETS+NUM_HASHTAGS+NUM_DOTS)) j=0;
   }
 
   if (debug) text(current_time + " " + previous_time, 50, height - 50);
 
   if (demo) {
     // create random messages in demo mode to emulate proximity events
-    long tag_n = int(random(people.size()));
-    long reader_n = int(random(places.size()));
-    ParticleMessage t = (ParticleMessage) people.get(int(tag_n));
-    ParticleHashtag r = (ParticleHashtag) places.get(int(reader_n));
+    long tag_n = int(random(tweets.size()));
+    long reader_n = int(random(hashtags.size()));
+    ParticleMessage t = (ParticleMessage) tweets.get(int(tag_n));
+    ParticleHashtag r = (ParticleHashtag) hashtags.get(int(reader_n));
     inString=(t.label+","+r.label+","+random(20, 50)+"\n");
   }
 
@@ -219,12 +236,12 @@ void draw() {
     int q = ((PApplet.parseInt(p[2])));
 
     // update the 2D particle simulation
-    long tag_n = findTag(people, p[0]);  
-    long reader_n = findReader(places, p[1]);
+    long tag_n = findTag(tweets, p[0]);  
+    long reader_n = findReader(hashtags, p[1]);
     if (debug) print("tag: "+tag_n+" / reader: "+reader_n+" / link quality: " +q);
     if ((tag_n>=0) && (reader_n>=0)) {
-      ParticleMessage t = (ParticleMessage) people.get(int(tag_n));
-      ParticleHashtag r = (ParticleHashtag) places.get(int(reader_n));
+      ParticleMessage t = (ParticleMessage) tweets.get(int(tag_n));
+      ParticleHashtag r = (ParticleHashtag) hashtags.get(int(reader_n));
       t.setSignal(r.id, q);
       float lq = float(q);
       if (current_smooth_time > (previous_smooth_time + smooth_time*1000)) {
@@ -291,7 +308,60 @@ void draw() {
   int k=0;
   for (VerletParticle2D p : physics.particles) {
     
-    fill(rcol);
+    //fill(rcol);
+
+    // draw messages
+    if (p instanceof ParticleMessage) {
+      // we need to cast particle to be a ParticleMessagein order to access its properties
+      //if (debug) println(physics.particles.get(k).distanceTo(physics.particles.get(NUM_TWEETS+NUM_HASHTAGS)));
+      ParticleMessage lp=(ParticleMessage)p;
+      //float dist = physics.particles.get(k).distanceTo(physics.particles.get(NUM_TWEETS+NUM_HASHTAGS+1));
+      float dist = physics.particles.get(k).distanceTo(physics.particles.get(0));
+      //lp.setColour(color(red(tcol)-red(tcol)*dist/width,green(tcol)*dist/width,blue(tcol)-blue(tcol)*dist/width));
+      //lp.setColour(color(dist,0,dist));
+      lp.setColour(tcol);
+      fill(lp.col);
+      Vec2D v = p.getVelocity();
+      tint(255, 50);
+      //ellipse(p.x, p.y, 50, 50);
+      tint(255, 255);
+      if (showLabels)
+      {
+        //println(lp.id);
+        textFont(fontextrasmall);
+        //Status messageStatus = fear_tweets.get(lp.id);
+        //String what = "";
+        //if (lp.id<NUM_TWEETS) {
+        //  messageStatus = fear_tweets.get(lp.id);
+        //  what = "fear";
+        //  fill(fear_color);
+        //}
+        //if (lp.id>=NUM_TWEETS) {
+        //  messageStatus = love_tweets.get(lp.id);
+        //  what = "love";
+        //  fill(love_color);
+        //}
+        try {
+        Status messageStatus = all_tweets.get(lp.id);
+        drawTweet(messageStatus, "all", lp.id, p.x-20, p.y+5);
+        fill(255,255,255);
+        
+        //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
+        textFont(font);
+        } 
+        catch (IndexOutOfBoundsException e) {
+        }
+      }
+      if (debug) {
+        fill(255,0,0);
+        textFont(fontsmall);
+        //text(str(lp.id), p.x, p.y-2);
+        text(str(dist), p.x, p.y-2);
+        textFont(font);
+      }
+    }
+  }
+  for (VerletParticle2D p : physics.particles) {
     // draw hashtags
     if (p instanceof ParticleHashtag) {
       // we need to cast particle to be a ParticleHashtag in order to access its properties
@@ -306,63 +376,19 @@ void draw() {
       }
     }
 
-    // draw messages
-    if (p instanceof ParticleMessage) {
-      // we need to cast particle to be a ParticleMessagein order to access its properties
-      //if (debug) println(physics.particles.get(k).distanceTo(physics.particles.get(NUM_MESSAGES+NUM_HASHTAGS)));
-      ParticleMessage lp=(ParticleMessage)p;
-      //float dist = physics.particles.get(k).distanceTo(physics.particles.get(NUM_MESSAGES+NUM_HASHTAGS+1));
-      float dist = physics.particles.get(k).distanceTo(physics.particles.get(0));
-      lp.setColour(color(255-255*dist/width,255*dist/width,255-255*dist/width));
-      //lp.setColour(color(dist,0,dist));
-      fill(lp.col);
-      Vec2D v = p.getVelocity();
-      tint(255, 50);
-      //ellipse(p.x, p.y, 50, 50);
-      tint(255, 255);
-      if (showLabels)
-      {
-        //println(lp.id);
-        textFont(fontextrasmall);
-        Status messageStatus = fear_tweets.get(lp.id);
-        String what = "";
-        if (lp.id<NUM_MESSAGES) {
-          messageStatus = fear_tweets.get(lp.id);
-          what = "fear";
-          fill(fear_color);
-        }
-        if (lp.id>=NUM_MESSAGES) {
-          messageStatus = love_tweets.get(lp.id);
-          what = "love";
-          fill(love_color);
-        }
-        drawTweet(messageStatus, what, lp.id, p.x-20, p.y+5);
-        fill(255,255,255);
-        
-        //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
-        textFont(font);
-      }
-      if (debug) {
-        fill(255,0,0);
-        textFont(fontsmall);
-        //text(str(lp.id), p.x, p.y-2);
-        text(str(dist), p.x, p.y-2);
-        textFont(font);
-      }
-    }
     fill(255,255,255);
     k++;
   }
   
-  if (k>(NUM_MESSAGES+NUM_HASHTAGS+NUM_DOTS)) k=0;
+  if (k>(NUM_TWEETS+NUM_HASHTAGS+NUM_DOTS)) k=0;
 }
 
 void initPhysicsTest() {
   physics=new VerletPhysics2D();
   physics.setDrag(0.05);
   physics.setWorldBounds(new Rect(0, 0, width, height));
-  getPlaces(placesFile);
-  getPeople(peopleFile);
+  getHashtags(hashtagsFile);
+  getTweets();
 }
 
 void serialEvent(Serial p) { 

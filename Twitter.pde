@@ -2,58 +2,77 @@ void getNewTweets()
 {
   try
   {
-      // try to get tweets here
+      println("Updating tweets ...");
+      // get tweets
       Query fearQuery = new Query(fearSearchString);
       fearQuery.setCount(50);
-      Query loveQuery = new Query(loveSearchString);
-      loveQuery.setCount(50);
+      //Query loveQuery = new Query(loveSearchString);
+      //loveQuery.setCount(50);
       QueryResult fearResult = twitter.search(fearQuery);
-      QueryResult loveResult = twitter.search(loveQuery);
+      //QueryResult loveResult = twitter.search(loveQuery);
       fear_tweets = fearResult.getTweets();
-      love_tweets = loveResult.getTweets();
-      home_tweets = twitter.getUserTimeline();
+      //love_tweets = loveResult.getTweets();
+      Paging paging = new Paging(1,1000);
+      all_tweets = twitter.getUserTimeline(paging);
+
+      //home_tweets = twitter.getUserTimeline(paging);
+      //all_tweets = home_tweets;
+      //all_tweets.addAll(fear_tweets);
       
-      println("Got new tweets");
-      println(fear_tweets);
-      println(fear_tweets.size());
-      println(fear_pictures);
-      println(fear_pictures.size());
-      println(love_tweets);
-      println(love_tweets.size());
-      println(love_pictures);
-      println(love_pictures.size());
-      print("home_tweets: ");
-      println(home_tweets);
+      //println("Got new tweets");
+      //println(fear_tweets);
+      //println(fear_tweets.size());
+      //println(fear_pictures);
+      //println(fear_pictures.size());
+      //println(love_tweets);
+      //println(love_tweets.size());
+      //println(love_pictures);
+      //println(love_pictures.size());
+      //print("all_tweets: ");
+      //println(all_tweets);
+      println(all_tweets.size() + " tweets.");
 
       // put tweets first image into list of pictures 
-      for (int i=0; i<NUM_MESSAGES;i++) {
-        Status fearStatus = fear_tweets.get(i);
-        MediaEntity[] media_entity = fearStatus.getMediaEntities();
+      for (int i=0; i<all_tweets.size();i++) {
+        //Status fearStatus = fear_tweets.get(i);
+        //MediaEntity[] media_entity = fearStatus.getMediaEntities();
+        //HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
+        //if (media_entity.length>0) {
+        //  MediaEntity media = media_entity[0];
+        //  String imageURL = media.getMediaURL();
+        //  PImage img = loadImage(imageURL); 
+        //  //println(img);
+        //  fear_pictures.set(i,img);
+        //}
+        //Status loveStatus = love_tweets.get(i);
+        //media_entity = loveStatus.getMediaEntities();
+        //if (media_entity.length>0) {
+        //  MediaEntity media = media_entity[0];
+        //  String imageURL = media.getMediaURL();
+        //  PImage img = loadImage(imageURL); 
+        //  //println(img);
+        //  love_pictures.set(i,img);
+        //}
+        Status homeStatus = all_tweets.get(i);
+        MediaEntity[] media_entity = homeStatus.getMediaEntities();
+        HashtagEntity[] hashtags_entity = homeStatus.getHashtagEntities();
+        //media_entity = homeStatus.getMediaEntities();
+        //println(media_entity.length);
         if (media_entity.length>0) {
           MediaEntity media = media_entity[0];
           String imageURL = media.getMediaURL();
           PImage img = loadImage(imageURL); 
-          println(img);
-          fear_pictures.set(i,img);
+          //println(img);
+          tweets_pictures.set(i,img);
         }
-        Status loveStatus = love_tweets.get(i);
-        media_entity = loveStatus.getMediaEntities();
-        if (media_entity.length>0) {
-          MediaEntity media = media_entity[0];
-          String imageURL = media.getMediaURL();
-          PImage img = loadImage(imageURL); 
-          println(img);
-          love_pictures.set(i,img);
-        }
-        Status homeStatus = home_tweets.get(i);
-        media_entity = homeStatus.getMediaEntities();
-        println(media_entity.length);
-        if (media_entity.length>0) {
-          MediaEntity media = media_entity[0];
-          String imageURL = media.getMediaURL();
-          PImage img = loadImage(imageURL); 
-          println(img);
-          home_pictures.set(i,img);
+        //String hashtags_text = "";
+        if (hashtags_entity.length>0) {
+          String h = "";
+          for (int j=0; j<hashtags_entity.length; j++) {
+            HashtagEntity hashtag = hashtags_entity[j];
+            h += hashtag.getText()+" ";
+          }
+          all_hashtags.set(i,h);
         }
       }
   }
@@ -71,17 +90,16 @@ void refreshTweets()
 {
     while (true)
     {
-        getNewTweets();
-
-        println("Updated Tweets");
-
-        delay(int(reset_time*1000));
+      println("Updating Tweets");
+      getNewTweets();
+      delay(int(reset_time*1000));
     }
 }
 
 void drawTweet(Status thisStatus, String what, int id, float x, float y)
 {
   MediaEntity[] media_entity = thisStatus.getMediaEntities();
+  HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
   if (media_entity.length>0) {
     //println(fear_media.Size);
     
@@ -90,22 +108,49 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
     //PImage img = loadImage(imageURL); 
     //int w = media.getSizes().get(1).getWidth();
     //int h = media.getSizes().get(1).getHeight();
-    if (what=="fear") {
-      PImage img = fear_pictures.get(id);
+    //if (what=="fear") {
+    //  PImage img = fear_pictures.get(id);
+    //  int w = img.width;
+    //  int h = img.height;
+    //  //image(img, x, y, w/4, h/4);
+    //  //tint(0, 255, 0, 200);
+    //  image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+    //}
+    //if (what=="love") {
+    //  PImage img = love_pictures.get(id-fear_pictures.size());
+    //  int w = img.width;
+    //  int h = img.height;
+    //  tint(255, 0, 255, 200);
+    //  image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+    //}
+    if (what=="all") {
+      PImage img = tweets_pictures.get(id);
+      VerletParticle2D p = physics.particles.get(id);
+      if (p instanceof ParticleHashtag) {
+         println(str(id)+" hashtag");
+      }
       int w = img.width;
       int h = img.height;
-      //image(img, x, y, w/4, h/4);
-      //tint(0, 255, 0, 200);
-      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
-    }
-    if (what=="love") {
-      PImage img = love_pictures.get(id-fear_pictures.size());
-      int w = img.width;
-      int h = img.height;
-      tint(255, 0, 255, 200);
-      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
-    }
-    text(thisStatus.getText(), x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+      //tint(255, 0, 255, 200);
+      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, w/MESSAGE_SCALE, h/MESSAGE_SCALE);
+      String hashtags_text = "";
+      if (hashtags_entity.length>0) {
+        for (int j=0; j<hashtags_entity.length; j++) {
+          HashtagEntity hashtag = hashtags_entity[j];
+          String hashtag_text = hashtag.getText();
+          
+          if (!hashtag_text.equals("driversofchange")) {
+            if (debug) println(hashtag_text);
+            //if (hashtag_text.equals("fear")) println("fear");
+            //if (hashtag_text.equals("love")) println("love");
+            hashtags_text += hashtag_text+" | ";
+          }
+        }
+      }
+      //text(thisStatus.getText(), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+      text(hashtags_text, x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+  }
+    
     //println("Array: "+fear_media);
     //println(fear_media.length);
     tint(0,255);
