@@ -36,8 +36,9 @@ boolean showLabels = true;  // switch to display particle labels
 boolean doReset = true;      // switch to enable reset
 boolean showLogo = false;    // show logo
 
-float reset_time = 60;  // update time in seconds for reset - at reset time a central attractor is created
+float reset_time = 10;  // update time in seconds for reset - at reset time a central attractor is created
 float smooth_time = 2;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
+float tweets_time = 60;
 
 color bgcol = color(0, 0, 0);       // background colour
 color lcol = color(200, 200, 255);  // line colour
@@ -73,6 +74,9 @@ float current_time;
 float previous_time;
 float current_smooth_time;
 float previous_smooth_time;
+float current_tweets_time;
+float previous_tweets_time;
+
 
 int time = 0;
 
@@ -184,6 +188,7 @@ void setup() {
 void draw() {
   current_time = millis();
   current_smooth_time = millis();
+  current_tweets_time = millis();
   background(bgcol);
   
   tint(255, 255/4);  // display the Arup logo at 1/4 opacity
@@ -192,7 +197,16 @@ void draw() {
   tint(255, 255);
   
   physics.update();    // update the toxiclibs particle system
-  stroke(255, 255, 255);
+
+  // draw springs
+  for (VerletSpring2D s : physics.springs) {
+    //print(s);
+    stroke(255,255,255);
+    strokeWeight(1);
+    line(s.a.x,s.a.y,s.b.x,s.b.y);
+  }
+
+  //stroke(255, 255, 255);
   noStroke();
 
   // draw particles
@@ -227,7 +241,7 @@ void draw() {
     long reader_n = int(random(hashtags.size()));
     ParticleMessage t = (ParticleMessage) tweets.get(int(tag_n));
     ParticleHashtag r = (ParticleHashtag) hashtags.get(int(reader_n));
-    inString=(t.label+","+r.label+","+random(20, 50)+"\n");
+    inString=(t.label+","+r.label+","+random(-100.0, 100.0)+"\n");
   }
 
   if (inString!=null)
@@ -292,7 +306,7 @@ void draw() {
       physics.addBehavior(centreAttractor);
       if (debug) println("reset");
     }
-    getNewTweets();
+    //getNewTweets();
     previous_time = current_time;
   } 
   else {
@@ -302,6 +316,11 @@ void draw() {
     else {
       physics.removeBehavior(centreAttractor);
     }
+  }
+  
+  if (current_tweets_time > (previous_tweets_time + tweets_time*1000)) {
+    getNewTweets();
+    previous_tweets_time = current_tweets_time;
   }
 
   // draw simulation
@@ -383,13 +402,7 @@ void draw() {
     k++;
   }
   
-  // draw springs
-  for (VerletSpring2D s : physics.springs) {
-    //print(s);
-    stroke(255,255,255);
-    strokeWeight(1);
-    line(s.a.x,s.a.y,s.b.x,s.b.y);
-  }
+
 
   
   if (k>(NUM_TWEETS+NUM_HASHTAGS+NUM_DOTS)) k=0;
@@ -410,7 +423,7 @@ void serialEvent(Serial p) {
 void mousePressed() {
   mousePos = new Vec2D(mouseX, mouseY);
   // create a new positive attraction force field around the mouse position
-  mouseAttractor = new AttractionBehavior(mousePos, 250, 0.9f);
+  mouseAttractor = new AttractionBehavior(mousePos, 250, 2.9f);
   physics.addBehavior(mouseAttractor);
 }
 

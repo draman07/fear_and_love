@@ -129,10 +129,14 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
       if (p instanceof ParticleHashtag) {
          println(str(id)+" hashtag");
       }
+      fill(255,255,255);
+      
       PImage img = tweets_pictures.get(id);
       int w = img.width;
       int h = img.height;
       //tint(255, 0, 255, 200);
+      int padding = 10;
+      rect(x-MESSAGE_SIZE/2-padding, y-MESSAGE_SIZE/2-3*padding, float(w/MESSAGE_SCALE+2*padding), float(h/MESSAGE_SCALE+6*padding));
       image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, w/MESSAGE_SCALE, h/MESSAGE_SCALE);
       String hashtags_text = "";
       if (hashtags_entity.length>0) {
@@ -143,24 +147,28 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
           if (!hashtag_text.equals("driversofchange")) {
             //println(str(id)+" "+hashtag_text);
             if (hashtag_text.equals("fear")) {
-              all_hashtags.add(id,"fear");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), MESSAGE_SIZE, 0.001);
+              all_hashtags.add(id,"#fear");
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/3,MESSAGE_SIZE), 0.001);
               physics.addSpring(s);
             }
             else if (hashtag_text.equals("love")) {
-              all_hashtags.add(id,"love");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), MESSAGE_SIZE, 0.001);
+              all_hashtags.add(id,"#love");
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/3,MESSAGE_SIZE), 0.001);
               physics.addSpring(s);
             }
-            else if (hashtag_text.length()>0) other_hashtags.add(id,hashtag_text);
+            else if (hashtag_text.length()>0) other_hashtags.add(id,"#"+hashtag_text);
             hashtags_text += hashtag_text+" | ";
           }
         }
       }
+
+      fill(0,0,0);
       //text(thisStatus.getText(), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
       //text(hashtags_text, x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
       text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
-      text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10+15, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10+15, MESSAGE_SIZE, MESSAGE_SIZE);
+      text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y-h/MESSAGE_SCALE-15, MESSAGE_SIZE, MESSAGE_SIZE);
+      fill(255,255,255);
   }
     
     //println("Array: "+fear_media);
