@@ -124,11 +124,12 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
     //  image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
     //}
     if (what=="all") {
-      PImage img = tweets_pictures.get(id);
-      VerletParticle2D p = physics.particles.get(id);
+      
+      VerletParticle2D p = physics.particles.get(id+NUM_HASHTAGS); // the first particles are static hashtags so skipping them
       if (p instanceof ParticleHashtag) {
          println(str(id)+" hashtag");
       }
+      PImage img = tweets_pictures.get(id);
       int w = img.width;
       int h = img.height;
       //tint(255, 0, 255, 200);
@@ -140,15 +141,26 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
           String hashtag_text = hashtag.getText();
           
           if (!hashtag_text.equals("driversofchange")) {
-            if (debug) println(hashtag_text);
-            //if (hashtag_text.equals("fear")) println("fear");
-            //if (hashtag_text.equals("love")) println("love");
+            //println(str(id)+" "+hashtag_text);
+            if (hashtag_text.equals("fear")) {
+              all_hashtags.add(id,"fear");
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), MESSAGE_SIZE, 0.001);
+              physics.addSpring(s);
+            }
+            else if (hashtag_text.equals("love")) {
+              all_hashtags.add(id,"love");
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), MESSAGE_SIZE, 0.001);
+              physics.addSpring(s);
+            }
+            else if (hashtag_text.length()>0) other_hashtags.add(id,hashtag_text);
             hashtags_text += hashtag_text+" | ";
           }
         }
       }
       //text(thisStatus.getText(), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
-      text(hashtags_text, x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(hashtags_text, x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+      text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+      text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10+15, MESSAGE_SIZE, MESSAGE_SIZE);
   }
     
     //println("Array: "+fear_media);

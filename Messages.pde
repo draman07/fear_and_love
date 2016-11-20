@@ -18,7 +18,7 @@ void getTweets(){
     ParticleMessage message = new ParticleMessage(random(width), random(height), label, id, name, tweets_pictures.get(i));
     message.col=tagcol;
     physics.addParticle(message);
-    physics.addBehavior(new AttractionBehavior(message, MESSAGE_SIZE/2, -1.5f, 0.01f));  // add repulsive force 
+    physics.addBehavior(new AttractionBehavior(message, MESSAGE_SIZE, -1.5f, 0.02f));  // add repulsive force 
     tweets.add(message);
         
   }

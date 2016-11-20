@@ -87,6 +87,7 @@ List<Status> home_tweets;
 List<Status> all_tweets;
 
 ArrayList<String> all_hashtags = new ArrayList(); 
+ArrayList<String> other_hashtags = new ArrayList(); 
 
 ArrayList<PImage> fear_pictures = new ArrayList();
 ArrayList<PImage> love_pictures = new ArrayList();
@@ -106,6 +107,7 @@ String imgTemp = null;
 void setup() {
   //size(1280, 1024);
   fullScreen();
+  
   //if (showFullscreen) {fullScreen();}
   //else {size(displayWidth, displayHeight);}
   logo = loadImage("ArupLogo2010_w.png");
@@ -141,6 +143,7 @@ void setup() {
     tweets_pictures.add(img);
     //HashtagEntity h = new HashtagEntity();
     all_hashtags.add("");
+    other_hashtags.add("");
   }
   //println(tweets_pictures.size());
 
@@ -371,7 +374,7 @@ void draw() {
       //ellipse(p.x, p.y, 10, 10);
       if (showLabels) {
         textFont(font);
-        text(lp.location, p.x-20, p.y-10);
+        text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
         textFont(font);
       }
     }
@@ -379,6 +382,15 @@ void draw() {
     fill(255,255,255);
     k++;
   }
+  
+  // draw springs
+  for (VerletSpring2D s : physics.springs) {
+    //print(s);
+    stroke(255,255,255);
+    strokeWeight(1);
+    line(s.a.x,s.a.y,s.b.x,s.b.y);
+  }
+
   
   if (k>(NUM_TWEETS+NUM_HASHTAGS+NUM_DOTS)) k=0;
 }
