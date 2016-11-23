@@ -111,6 +111,7 @@ String imgTemp = null;
 void setup() {
   //size(1280, 1024);
   fullScreen();
+  noCursor();
   
   //if (showFullscreen) {fullScreen();}
   //else {size(displayWidth, displayHeight);}
@@ -393,7 +394,7 @@ void draw() {
       //ellipse(p.x, p.y, 10, 10);
       if (showLabels) {
         textFont(font);
-        text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
+        //text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
         textFont(font);
       }
     }

@@ -33,7 +33,7 @@ void getNewTweets()
       println(all_tweets.size() + " tweets.");
 
       // put tweets first image into list of pictures 
-      for (int i=0; i<all_tweets.size();i++) {
+      for (int i=(all_tweets.size()-1); i>=0;i--) {
         //Status fearStatus = fear_tweets.get(i);
         //MediaEntity[] media_entity = fearStatus.getMediaEntities();
         //HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();

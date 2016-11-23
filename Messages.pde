@@ -50,7 +50,7 @@ void getHashtags(String rFile){
   
     ParticleHashtag hashtag=new ParticleHashtag(x, y, label, id, location);
     hashtag.col = readcol;
-    hashtag.lock(); // lock the particle in its place
+    //hashtag.lock(); // lock the particle in its place
     physics.addParticle(hashtag);
     AttractionBehavior a = new AttractionBehavior(hashtag, width/3, 0.0f, 0.01f);
     physics.addBehavior(a); 
