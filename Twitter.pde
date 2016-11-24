@@ -4,13 +4,13 @@ void getNewTweets()
   {
       println("Updating tweets ...");
       // get tweets
-      Query fearQuery = new Query(fearSearchString);
-      fearQuery.setCount(50);
+      //Query fearQuery = new Query(fearSearchString);
+      //fearQuery.setCount(50);
       //Query loveQuery = new Query(loveSearchString);
       //loveQuery.setCount(50);
-      QueryResult fearResult = twitter.search(fearQuery);
+      //QueryResult fearResult = twitter.search(fearQuery);
       //QueryResult loveResult = twitter.search(loveQuery);
-      fear_tweets = fearResult.getTweets();
+      //fear_tweets = fearResult.getTweets();
       //love_tweets = loveResult.getTweets();
       Paging paging = new Paging(1,1000);
       all_tweets = twitter.getUserTimeline(paging);
@@ -31,9 +31,10 @@ void getNewTweets()
       //print("all_tweets: ");
       //println(all_tweets);
       println(all_tweets.size() + " tweets.");
+      tweets_n = all_tweets.size();
 
       // put tweets first image into list of pictures 
-      for (int i=0; i<all_tweets.size();i++) {
+      for (int i=(all_tweets.size()-1); i>=0;i--) {
         //Status fearStatus = fear_tweets.get(i);
         //MediaEntity[] media_entity = fearStatus.getMediaEntities();
         //HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
@@ -96,10 +97,16 @@ void refreshTweets()
     }
 }
 
-void drawTweet(Status thisStatus, String what, int id, float x, float y)
+void drawTweet(Status thisStatus, String what, int id, float x, float y, float tweet_scale)
 {
   MediaEntity[] media_entity = thisStatus.getMediaEntities();
   HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
+  
+  //translate(x,y);
+  pushMatrix();
+  scale(tweet_scale);
+  
+  
   if (media_entity.length>0) {
     //println(fear_media.Size);
     
@@ -148,12 +155,12 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
             //println(str(id)+" "+hashtag_text);
             if (hashtag_text.equals("fear")) {
               all_hashtags.add(id,"#fear");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/3,MESSAGE_SIZE), 0.001);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.equals("love")) {
               all_hashtags.add(id,"#love");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/3,MESSAGE_SIZE), 0.001);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.length()>0) other_hashtags.add(id,"#"+hashtag_text);
@@ -177,6 +184,9 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y)
   } else {
     text(thisStatus.getText(), x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
   }
+  scale(1/tweet_scale);
+  popMatrix();
+  //translate(x,y);
 }
 
 /*

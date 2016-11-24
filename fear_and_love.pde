@@ -19,15 +19,16 @@ import java.util.*;
 //String fearSearchString = "source:aruplightlab fear";
 //String loveSearchString = "source:aruplightlab love";
 
-String fearSearchString = "fear";
-String loveSearchString = "%23love";
+//String fearSearchString = "fear";
+//String loveSearchString = "%23love";
 
 int NUM_TWEETS = 100;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
 int NUM_DOTS = 500; // number of small particles used to visualise the force field
 int MESSAGE_SIZE = 150; // pixel size of floating messages
-int MESSAGE_SCALE = 8;
+int MESSAGE_SCALE = 7;
 
+int tweets_n = 0;
 
 //boolean showFullscreen = true;   // switch to turn fullscreen on or off
 boolean demo = true;         // switch to use signals from Synapse RF100 physical devices (false) or demo signals (true)
@@ -36,8 +37,13 @@ boolean showLabels = true;  // switch to display particle labels
 boolean doReset = true;      // switch to enable reset
 boolean showLogo = false;    // show logo
 
+<<<<<<< HEAD
 float reset_time = 10;  // update time in seconds for reset - at reset time a central attractor is created
 float smooth_time = 2;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
+=======
+float reset_time = 20;  // update time in seconds for reset - at reset time a central attractor is created
+float smooth_time = 10;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
+>>>>>>> 2b1894eec365227a424e000a47c005c855af2e8c
 float tweets_time = 30;
 
 color bgcol = color(0, 0, 0);       // background colour
@@ -111,6 +117,7 @@ String imgTemp = null;
 void setup() {
   //size(1280, 1024);
   fullScreen();
+  noCursor();
   
   //if (showFullscreen) {fullScreen();}
   //else {size(displayWidth, displayHeight);}
@@ -302,8 +309,9 @@ void draw() {
   if (current_time > (previous_time + reset_time*1000)) {
 
     if (doReset) {
-      centreAttractor = new AttractionBehavior(new Vec2D(width/2, height/2), width, 20.0f);
-      physics.addBehavior(centreAttractor);
+      //centreAttractor = new AttractionBehavior(new Vec2D(width/3, height/3), width, 5.0f);
+      //physics.addBehavior(centreAttractor);
+      //initPhysicsTest();
       if (debug) println("reset");
     }
     //getNewTweets();
@@ -328,7 +336,9 @@ void draw() {
 
   // draw particles
   int k=0;
-  for (VerletParticle2D p : physics.particles) {
+  //for (VerletParticle2D p : physics.particles) {
+    for(int i=physics.particles.size()-1; i>=0; i--){
+      VerletParticle2D p=physics.particles.get(i);
     
     //fill(rcol);
 
@@ -365,7 +375,7 @@ void draw() {
         //}
         try {
         Status messageStatus = all_tweets.get(lp.id);
-        drawTweet(messageStatus, "all", lp.id, p.x-20, p.y+5);
+        drawTweet(messageStatus, "all", lp.id, p.x-20, p.y+5,1);
         fill(255,255,255);
         
         //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
@@ -393,7 +403,7 @@ void draw() {
       //ellipse(p.x, p.y, 10, 10);
       if (showLabels) {
         textFont(font);
-        //text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
+        text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
         textFont(font);
       }
     }
@@ -414,7 +424,6 @@ void initPhysicsTest() {
   physics.setWorldBounds(new Rect(0, 0, width, height));
   getHashtags(hashtagsFile);
   getTweets();
-  delay(5000);
 }
 
 void serialEvent(Serial p) { 
@@ -424,7 +433,7 @@ void serialEvent(Serial p) {
 void mousePressed() {
   mousePos = new Vec2D(mouseX, mouseY);
   // create a new positive attraction force field around the mouse position
-  mouseAttractor = new AttractionBehavior(mousePos, 250, 2.9f);
+  mouseAttractor = new AttractionBehavior(mousePos, width/3, 3f);
   physics.addBehavior(mouseAttractor);
 }
 
