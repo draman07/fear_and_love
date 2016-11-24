@@ -26,7 +26,7 @@ int NUM_TWEETS = 100;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
 int NUM_DOTS = 500; // number of small particles used to visualise the force field
 int MESSAGE_SIZE = 150; // pixel size of floating messages
-int MESSAGE_SCALE = 7;
+int MESSAGE_SCALE = 8;
 
 
 //boolean showFullscreen = true;   // switch to turn fullscreen on or off
@@ -38,7 +38,7 @@ boolean showLogo = false;    // show logo
 
 float reset_time = 10;  // update time in seconds for reset - at reset time a central attractor is created
 float smooth_time = 2;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
-float tweets_time = 60;
+float tweets_time = 30;
 
 color bgcol = color(0, 0, 0);       // background colour
 color lcol = color(200, 200, 255);  // line colour
@@ -393,7 +393,7 @@ void draw() {
       //ellipse(p.x, p.y, 10, 10);
       if (showLabels) {
         textFont(font);
-        text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
+        //text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
         textFont(font);
       }
     }
@@ -414,6 +414,7 @@ void initPhysicsTest() {
   physics.setWorldBounds(new Rect(0, 0, width, height));
   getHashtags(hashtagsFile);
   getTweets();
+  delay(5000);
 }
 
 void serialEvent(Serial p) { 
