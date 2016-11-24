@@ -18,7 +18,7 @@ void getTweets(){
     ParticleMessage message = new ParticleMessage(random(width), random(height), label, id, name, tweets_pictures.get(i));
     message.col=tagcol;
     physics.addParticle(message);
-    physics.addBehavior(new AttractionBehavior(message, MESSAGE_SIZE*2, -1.5f, 0.002f));  // add repulsive force 
+    physics.addBehavior(new AttractionBehavior(message, MESSAGE_SIZE*3, -2.5f, 0.002f));  // add repulsive force 
     tweets.add(message);
         
   }
@@ -52,7 +52,7 @@ void getHashtags(String rFile){
     hashtag.col = readcol;
     //hashtag.lock(); // lock the particle in its place
     physics.addParticle(hashtag);
-    AttractionBehavior a = new AttractionBehavior(hashtag, width/3, 1.0f, 0.01f);
+    AttractionBehavior a = new AttractionBehavior(hashtag, width/3, 2.0f, 0.001f);
     physics.addBehavior(a); 
     hashtags.add(hashtag);
         

@@ -243,7 +243,7 @@ void draw() {
     long reader_n = int(random(hashtags.size()));
     ParticleMessage t = (ParticleMessage) tweets.get(int(tag_n));
     ParticleHashtag r = (ParticleHashtag) hashtags.get(int(reader_n));
-    inString=(t.label+","+r.label+","+random(-10.0, 10.0)+"\n");
+    inString=(t.label+","+r.label+","+random(-100.0, 100.0)+"\n");
   }
 
   if (inString!=null)
@@ -304,8 +304,8 @@ void draw() {
   if (current_time > (previous_time + reset_time*1000)) {
 
     if (doReset) {
-      centreAttractor = new AttractionBehavior(new Vec2D(width/3, height/3), width, 5.0f);
-      physics.addBehavior(centreAttractor);
+      //centreAttractor = new AttractionBehavior(new Vec2D(width/3, height/3), width, 5.0f);
+      //physics.addBehavior(centreAttractor);
       //initPhysicsTest();
       if (debug) println("reset");
     }

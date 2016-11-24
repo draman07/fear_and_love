@@ -155,12 +155,12 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
             //println(str(id)+" "+hashtag_text);
             if (hashtag_text.equals("fear")) {
               all_hashtags.add(id,"#fear");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/2,MESSAGE_SIZE), 0.01);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.equals("love")) {
               all_hashtags.add(id,"#love");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_SIZE/2,MESSAGE_SIZE*2), 0.01);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.length()>0) other_hashtags.add(id,"#"+hashtag_text);
