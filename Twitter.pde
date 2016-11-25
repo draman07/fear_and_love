@@ -102,9 +102,9 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
   MediaEntity[] media_entity = thisStatus.getMediaEntities();
   HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
   
-  //translate(x,y);
-  pushMatrix();
-  scale(tweet_scale);
+  //pushMatrix();
+  //translate(0,0);
+  //scale(tweet_scale);
   
   
   if (media_entity.length>0) {
@@ -143,8 +143,15 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
       int h = img.height;
       //tint(255, 0, 255, 200);
       int padding = 10;
-      rect(x-MESSAGE_SIZE/2-padding, y-MESSAGE_SIZE/2-3*padding, float(w/MESSAGE_SCALE+2*padding), float(h/MESSAGE_SCALE+6*padding));
-      image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, w/MESSAGE_SCALE, h/MESSAGE_SCALE);
+      //rect(x-MESSAGE_SIZE/2-padding, y-MESSAGE_SIZE/2-3*padding, float(w/MESSAGE_SCALE+2*padding), float(h/MESSAGE_SCALE+6*padding));
+      //rect(MESSAGE_SIZE/2-padding, MESSAGE_SIZE/2-3*padding, float(w/MESSAGE_SCALE+2*padding), float(h/MESSAGE_SCALE+6*padding));
+      //translate(x,y);
+      rect(x-(MESSAGE_W/2-padding/2)*tweet_scale, y-(MESSAGE_H/2-padding)*tweet_scale, (float(MESSAGE_W)+padding)*tweet_scale, (float(MESSAGE_H)+padding*4)*tweet_scale);
+      image(img, x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y-MESSAGE_H/2*tweet_scale+3*padding*tweet_scale, MESSAGE_W*tweet_scale, MESSAGE_H*tweet_scale);
+
+
+      //image(img, x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, w/MESSAGE_SCALE, h/MESSAGE_SCALE);
+      //image(img, MESSAGE_SIZE/2, MESSAGE_SIZE/2, w/MESSAGE_SCALE, h/MESSAGE_SCALE);
       String hashtags_text = "";
       if (hashtags_entity.length>0) {
         for (int j=0; j<hashtags_entity.length; j++) {
@@ -155,12 +162,12 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
             //println(str(id)+" "+hashtag_text);
             if (hashtag_text.equals("fear")) {
               all_hashtags.add(id,"#fear");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_W*tweet_scale,MESSAGE_H*tweet_scale), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.equals("love")) {
               all_hashtags.add(id,"#love");
-              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(2*MESSAGE_SIZE/3,5*MESSAGE_SIZE/4), 1.01);
+              VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_W*tweet_scale,MESSAGE_H*tweet_scale), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.length()>0) other_hashtags.add(id,"#"+hashtag_text);
@@ -170,11 +177,22 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
       }
 
       fill(0,0,0);
+      //fill(255,255,255);
       //text(thisStatus.getText(), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
       //text(hashtags_text, x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
-      text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(other_hashtags.get(id), MESSAGE_SIZE/2, h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+
+      print(tweet_scale);
+      textSize(tweet_scale*12);
+      text(all_hashtags.get(id), x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y-MESSAGE_H/2*tweet_scale+padding*tweet_scale*2.5);
+      text(other_hashtags.get(id), x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y+MESSAGE_H*tweet_scale-padding*tweet_scale*3);
+      //text(all_hashtags.get(id), x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y+(h+padding)*tweet_scale, (w-padding)*tweet_scale, padding);
       //text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10+15, MESSAGE_SIZE, MESSAGE_SIZE);
-      text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y-h/MESSAGE_SCALE-15, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(all_hashtags.get(id), x-MESSAGE_SIZE/2, y-h/MESSAGE_SCALE-15, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(all_hashtags.get(id), MESSAGE_SIZE/2,   h/MESSAGE_SCALE-15, MESSAGE_SIZE, MESSAGE_SIZE);
+      //text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
+
       fill(255,255,255);
   }
     
@@ -182,11 +200,12 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
     //println(fear_media.length);
     tint(0,255);
   } else {
-    text(thisStatus.getText(), x-MESSAGE_SIZE/2, y-MESSAGE_SIZE/2, MESSAGE_SIZE, MESSAGE_SIZE);
+    text(thisStatus.getText(), x-MESSAGE_W/2, y-MESSAGE_H/2, MESSAGE_W, MESSAGE_H);
   }
-  scale(1/tweet_scale);
-  popMatrix();
+  //scale(1/tweet_scale);
   //translate(x,y);
+
+  //popMatrix();
 }
 
 /*

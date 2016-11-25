@@ -24,9 +24,11 @@ import java.util.*;
 
 int NUM_TWEETS = 100;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
-int NUM_DOTS = 500; // number of small particles used to visualise the force field
-int MESSAGE_SIZE = 150; // pixel size of floating messages
-int MESSAGE_SCALE = 7;
+int NUM_DOTS = 1000; // number of small particles used to visualise the force field
+//int MESSAGE_SIZE = 150; // pixel size of floating messages
+//int MESSAGE_SCALE = 7;
+int MESSAGE_W = 200;
+int MESSAGE_H = 150;
 
 int tweets_n = 0;
 
@@ -37,13 +39,9 @@ boolean showLabels = true;  // switch to display particle labels
 boolean doReset = true;      // switch to enable reset
 boolean showLogo = false;    // show logo
 
-<<<<<<< HEAD
-float reset_time = 10;  // update time in seconds for reset - at reset time a central attractor is created
-float smooth_time = 2;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
-=======
 float reset_time = 20;  // update time in seconds for reset - at reset time a central attractor is created
 float smooth_time = 10;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
->>>>>>> 2b1894eec365227a424e000a47c005c855af2e8c
+
 float tweets_time = 30;
 
 color bgcol = color(0, 0, 0);       // background colour
@@ -89,6 +87,10 @@ int time = 0;
 Vec2D mousePos;
 AttractionBehavior mouseAttractor;
 AttractionBehavior centreAttractor;
+AttractionBehavior Attractor1;
+AttractionBehavior Attractor2;
+AttractionBehavior Attractor3;
+AttractionBehavior Attractor4;
 
 Twitter twitter;
 List<Status> fear_tweets;
@@ -248,7 +250,7 @@ void draw() {
     long reader_n = int(random(hashtags.size()));
     ParticleMessage t = (ParticleMessage) tweets.get(int(tag_n));
     ParticleHashtag r = (ParticleHashtag) hashtags.get(int(reader_n));
-    inString=(t.label+","+r.label+","+random(-100.0, 100.0)+"\n");
+    inString=(t.label+","+r.label+","+random(1, 10)+"\n");
   }
 
   if (inString!=null)
@@ -258,6 +260,7 @@ void draw() {
     String[] p = splitTokens(inString, ",\n\r\t");
     if (debug) text("message: ["+p[0]+"] / place: ["+p[1]+"] / link quality: [" +p[2]+"]", 20, height-200);
     int q = ((PApplet.parseInt(p[2])));
+    //println(q);
 
     // update the 2D particle simulation
     long tag_n = findTag(tweets, p[0]);  
@@ -277,7 +280,9 @@ void draw() {
           for (Iterator i=physics.behaviors.iterator(); i.hasNext();) {
             AttractionBehavior a=(AttractionBehavior)i.next();
             if (ii==(reader_n)) {
-              a.setStrength(10.0/lq);
+              float strength = 2.0/lq;
+              println(strength);
+              a.setStrength(-strength);
               if (debug) println(a.getStrength());
             }
             ii++;
@@ -309,8 +314,17 @@ void draw() {
   if (current_time > (previous_time + reset_time*1000)) {
 
     if (doReset) {
-      //centreAttractor = new AttractionBehavior(new Vec2D(width/3, height/3), width, 5.0f);
-      //physics.addBehavior(centreAttractor);
+      centreAttractor = new AttractionBehavior(new Vec2D(width/3, height/3), width, 10.0f);
+      Attractor1 = new AttractionBehavior(new Vec2D(width-width/10, height-height/10), width, 1.0f);
+      Attractor2 = new AttractionBehavior(new Vec2D(width/10, height/10), width, 1.0f);
+      Attractor3 = new AttractionBehavior(new Vec2D(width/10, height-height/10), width, 1.0f);
+      Attractor4 = new AttractionBehavior(new Vec2D(width-width/10, height/10), width, 1.0f);
+
+      physics.addBehavior(centreAttractor);
+      physics.addBehavior(Attractor1);
+      physics.addBehavior(Attractor2);
+      physics.addBehavior(Attractor3);
+      physics.addBehavior(Attractor4);
       //initPhysicsTest();
       if (debug) println("reset");
     }
@@ -337,9 +351,9 @@ void draw() {
   // draw particles
   int k=0;
   //for (VerletParticle2D p : physics.particles) {
-    for(int i=physics.particles.size()-1; i>=0; i--){
-      VerletParticle2D p=physics.particles.get(i);
-    
+  for(int i=physics.particles.size()-1; i>=0; i--){
+    VerletParticle2D p=physics.particles.get(i);
+    float t_scale = 1.0/(i/2+0.001);
     //fill(rcol);
 
     // draw messages
@@ -375,7 +389,7 @@ void draw() {
         //}
         try {
         Status messageStatus = all_tweets.get(lp.id);
-        drawTweet(messageStatus, "all", lp.id, p.x-20, p.y+5,1);
+        drawTweet(messageStatus, "all", lp.id, p.x, p.y,t_scale);
         fill(255,255,255);
         
         //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
@@ -403,7 +417,7 @@ void draw() {
       //ellipse(p.x, p.y, 10, 10);
       if (showLabels) {
         textFont(font);
-        text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
+        //text(lp.location, p.x-MESSAGE_SIZE/2, p.y-10);
         textFont(font);
       }
     }
