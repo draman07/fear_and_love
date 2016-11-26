@@ -99,6 +99,9 @@ void refreshTweets()
 
 void drawTweet(Status thisStatus, String what, int id, float x, float y, float tweet_scale)
 {
+  //println("id="+id);
+  //println(other_hashtags.size()+" "+all_hashtags.size());
+  
   MediaEntity[] media_entity = thisStatus.getMediaEntities();
   HashtagEntity[] hashtags_entity = thisStatus.getHashtagEntities();
   
@@ -161,16 +164,26 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
           if (!hashtag_text.equals("driversofchange")) {
             //println(str(id)+" "+hashtag_text);
             if (hashtag_text.equals("fear")) {
-              all_hashtags.add(id,"#fear");
+              all_hashtags.set(id,"#fear");
               VerletSpring2D s = new VerletSpring2D(physics.particles.get(1), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_W*tweet_scale,MESSAGE_H*tweet_scale), 1.01);
               physics.addSpring(s);
             }
             else if (hashtag_text.equals("love")) {
-              all_hashtags.add(id,"#love");
+              all_hashtags.set(id,"#love");
               VerletSpring2D s = new VerletSpring2D(physics.particles.get(0), physics.particles.get(id+NUM_HASHTAGS), random(MESSAGE_W*tweet_scale,MESSAGE_H*tweet_scale), 1.01);
               physics.addSpring(s);
+              //println("#love");
             }
-            else if (hashtag_text.length()>0) other_hashtags.add(id,"#"+hashtag_text);
+            else if (hashtag_text.length()>0) {
+              other_hashtags.set(id,"#"+hashtag_text);
+              //println(hashtag_text+" / "+getHashtagNumber(other_hashtags, hashtag_text));
+              if (getHashtagNumber(other_hashtags, hashtag_text)>1) {
+                VerletSpring2D s = new VerletSpring2D(physics.particles.get(findHashtag(other_hashtags, hashtag_text)+NUM_HASHTAGS), physics.particles.get(id+NUM_HASHTAGS), 100, 1.01);
+                physics.addSpring(s);
+                //println("linked "+(findHashtag(other_hashtags, hashtag_text)+NUM_HASHTAGS)+" with "+(id+NUM_HASHTAGS));
+              }
+              //println(hashtag_text);
+            }
             hashtags_text += hashtag_text+" | ";
           }
         }
@@ -183,7 +196,7 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
       //text(other_hashtags.get(id), x-MESSAGE_SIZE/2, y+h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
       //text(other_hashtags.get(id), MESSAGE_SIZE/2, h/MESSAGE_SCALE-MESSAGE_SIZE/2+10, MESSAGE_SIZE, MESSAGE_SIZE);
 
-      print(tweet_scale);
+      //println(tweet_scale);
       textSize(tweet_scale*12);
       text(all_hashtags.get(id), x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y-MESSAGE_H/2*tweet_scale+padding*tweet_scale*2.5);
       text(other_hashtags.get(id), x-MESSAGE_W/2*tweet_scale+padding*tweet_scale, y+MESSAGE_H*tweet_scale-padding*tweet_scale*3);
@@ -206,6 +219,34 @@ void drawTweet(Status thisStatus, String what, int id, float x, float y, float t
   //translate(x,y);
 
   //popMatrix();
+}
+
+int getHashtagNumber(ArrayList<String> hashtags, String what){
+    int i = 0;
+    int count = 0;
+    //println(hashtags.size());
+    for (String hashtag : hashtags) {
+               //print(hashtag+" ");
+               if(hashtag.matches("#"+what)){
+                   count++;
+               }
+               i++;
+    }
+    return count; 
+}
+
+int findHashtag(ArrayList<String> hashtags, String what){
+    int i = 0;
+    int count = 0;
+    //println(hashtags.size());
+    for (String hashtag : hashtags) {
+               //print(hashtag+" ");
+               if(hashtag.matches("#"+what)){
+                   count++;
+               }
+               i++;
+    }
+    return i-1; 
 }
 
 /*
