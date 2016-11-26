@@ -22,9 +22,9 @@ import java.util.*;
 //String fearSearchString = "fear";
 //String loveSearchString = "%23love";
 
-int NUM_TWEETS = 500;  // number of big particles associated with messages
+int NUM_TWEETS = 100;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
-int NUM_DOTS = 1200; // number of small particles used to visualise the force field
+int NUM_DOTS = 800; // number of small particles used to visualise the force field
 //int MESSAGE_SIZE = 150; // pixel size of floating messages
 //int MESSAGE_SCALE = 7;
 int MESSAGE_W = 200;
@@ -354,7 +354,8 @@ void draw() {
   //for (VerletParticle2D p : physics.particles) {
   for(int i=physics.particles.size()-1; i>=0; i--){
     VerletParticle2D p=physics.particles.get(i);
-    float t_scale = 1.5/(i/0.8+0.001)+0.3;
+    //float t_scale = 1.8/(i/0.8+0.001)+0.3;
+    float t_scale = 0.8;
     //float t_scale = 1-i*i/4/physics.particles.size();
     //fill(rcol);
 
