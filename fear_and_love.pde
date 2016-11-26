@@ -23,7 +23,7 @@ import java.util.*;
 //String loveSearchString = "%23love";
 
 int NUM_TWEETS = 800;  // number of big particles associated with messages
-int MAX_TWEETS = 10;  // number of big particles associated with messages
+int MAX_TWEETS = 80;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
 int NUM_DOTS = 300; // number of small particles used to visualise the force field
 //int MESSAGE_SIZE = 150; // pixel size of floating messages
@@ -186,7 +186,7 @@ void setup() {
 
   current_time = millis();
   current_smooth_time = millis();
-  smooth();
+  smooth(3);
 
   // create the floating dots
   for (int i=0; i<NUM_DOTS; i++) {
@@ -405,7 +405,8 @@ void draw() {
         //}
         try {
         Status messageStatus = all_tweets.get(lp.id);
-        drawTweet(messageStatus, "all", lp.id, p.x, p.y,t_scale);
+        if (lp.id<MAX_TWEETS) drawTweet(messageStatus, "all", lp.id, p.x, p.y,t_scale);
+        //println(lp.id);
         fill(255,255,255);
         
         //text(str(lp.id)+"-"+str(k), p.x-20, p.y+5);
@@ -422,6 +423,7 @@ void draw() {
         textFont(font);
       }
     }
+    k++;
   }
   for (VerletParticle2D p : physics.particles) {
     // draw hashtags
@@ -439,12 +441,13 @@ void draw() {
     }
 
     fill(255,255,255);
-    k++;
+    
   }
   
-
-
   
+
+
+  //k++;
   if (k>(NUM_TWEETS+NUM_HASHTAGS+NUM_DOTS)) k=0;
 }
 
