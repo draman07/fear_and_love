@@ -87,15 +87,15 @@ void getNewTweets()
 
 }
 
-void refreshTweets()
-{
-    while (true)
-    {
-      println("Updating Tweets");
-      getNewTweets();
-      delay(int(reset_time*1000));
-    }
-}
+//void refreshTweets()
+//{
+//    while (true)
+//    {
+//      println("Updating Tweets");
+//      getNewTweets();
+//      delay(int(reset_time*1000));
+//    }
+//}
 
 void drawTweet(Status thisStatus, String what, int id, float x, float y, float tweet_scale)
 {

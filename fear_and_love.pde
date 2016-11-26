@@ -195,6 +195,8 @@ void setup() {
   
   
   getNewTweets();
+  thread("refreshTweets");
+
   
 }
 
@@ -345,11 +347,11 @@ void draw() {
     }
   }
   
-  if (current_tweets_time > (previous_tweets_time + tweets_time*1000)) {
-    getNewTweets();
-    previous_tweets_time = current_tweets_time;
-    println("particles number = "+physics.particles.size());
-  }
+  //if (current_tweets_time > (previous_tweets_time + tweets_time*1000)) {
+  //  getNewTweets();
+  //  previous_tweets_time = current_tweets_time;
+  //  println("particles number = "+physics.particles.size());
+  //}
 
   if (current_reinit_time > (previous_reinit_time + reinit_time*1000)) {
       println("reinit");
@@ -507,6 +509,19 @@ void keyPressed() {
     exit();
   }
 }
+
+void refreshTweets()
+{
+    while (true)
+    {
+        getNewTweets();
+
+        println("Updated Tweets");
+        println("particles number = "+physics.particles.size());
+        delay(int(tweets_time*1000));
+    }
+}
+
 
 //boolean sketchFullScreen() {
 //  return fullScreen;
