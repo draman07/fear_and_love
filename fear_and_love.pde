@@ -22,10 +22,10 @@ import java.util.*;
 //String fearSearchString = "fear";
 //String loveSearchString = "%23love";
 
-int NUM_TWEETS = 100;  // number of big particles associated with messages
+int NUM_TWEETS = 700;  // number of big particles associated with messages
 int MAX_TWEETS = 10;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
-int NUM_DOTS = 800; // number of small particles used to visualise the force field
+int NUM_DOTS = 500; // number of small particles used to visualise the force field
 //int MESSAGE_SIZE = 150; // pixel size of floating messages
 //int MESSAGE_SCALE = 7;
 int MESSAGE_W = 200;
@@ -348,11 +348,13 @@ void draw() {
   if (current_tweets_time > (previous_tweets_time + tweets_time*1000)) {
     getNewTweets();
     previous_tweets_time = current_tweets_time;
+    println("particles number = "+physics.particles.size());
   }
 
   if (current_reinit_time > (previous_reinit_time + reinit_time*1000)) {
-    initPhysicsTest();
-    previous_reinit_time = current_reinit_time;
+      println("reinit");
+      initPhysicsTest();
+      previous_reinit_time = current_reinit_time;
   }
 
   
@@ -365,8 +367,8 @@ void draw() {
   //for (VerletParticle2D p : physics.particles) {
   for(int i=physics.particles.size()-1; i>=0; i--){
     VerletParticle2D p=physics.particles.get(i);
-    //float t_scale = 1.8/(i/0.8+0.001)+0.3;
-    float t_scale = 0.8;
+    float t_scale = 1.8/(i/0.8+0.001)+0.3;
+    //float t_scale = 0.8;
     //float t_scale = 1-i*i/4/physics.particles.size();
     //fill(rcol);
 
@@ -452,6 +454,16 @@ void initPhysicsTest() {
   physics.setWorldBounds(new Rect(0, 0, width, height));
   getHashtags(hashtagsFile);
   getTweets();
+  println("particles number = "+physics.particles.size());
+  if (physics.particles.size()<NUM_DOTS) {
+      for (int i=0; i<NUM_DOTS; i++) {
+      addDot(width/2, height/2);
+      
+
+    }
+  println("particles number = "+physics.particles.size());
+
+  }
 }
 
 void serialEvent(Serial p) { 
