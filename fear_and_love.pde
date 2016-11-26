@@ -23,6 +23,7 @@ import java.util.*;
 //String loveSearchString = "%23love";
 
 int NUM_TWEETS = 100;  // number of big particles associated with messages
+int MAX_TWEETS = 10;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
 int NUM_DOTS = 800; // number of small particles used to visualise the force field
 //int MESSAGE_SIZE = 150; // pixel size of floating messages
@@ -40,9 +41,9 @@ boolean doReset = true;      // switch to enable reset
 boolean showLogo = false;    // show logo
 
 float reset_time = 20;  // update time in seconds for reset - at reset time a central attractor is created
-float smooth_time = 10;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
-
-float tweets_time = 30;
+float smooth_time = 5;  // smoothing time in seconds - actuates an attraction behaviour if proximity is detected
+float reinit_time = 133; 
+float tweets_time = 59;
 
 color bgcol = color(0, 0, 0);       // background colour
 color lcol = color(200, 200, 255);  // line colour
@@ -80,6 +81,8 @@ float current_smooth_time;
 float previous_smooth_time;
 float current_tweets_time;
 float previous_tweets_time;
+float current_reinit_time;
+float previous_reinit_time;
 
 
 int time = 0;
@@ -199,6 +202,7 @@ void draw() {
   current_time = millis();
   current_smooth_time = millis();
   current_tweets_time = millis();
+  current_reinit_time = millis();
   background(bgcol);
   
   tint(255, 255/4);  // display the Arup logo at 1/4 opacity
@@ -345,6 +349,13 @@ void draw() {
     getNewTweets();
     previous_tweets_time = current_tweets_time;
   }
+
+  if (current_reinit_time > (previous_reinit_time + reinit_time*1000)) {
+    initPhysicsTest();
+    previous_reinit_time = current_reinit_time;
+  }
+
+  
 
   // draw simulation
   tint(255, 255); // opaque
