@@ -22,10 +22,10 @@ import java.util.*;
 //String fearSearchString = "fear";
 //String loveSearchString = "%23love";
 
-int NUM_TWEETS = 700;  // number of big particles associated with messages
+int NUM_TWEETS = 800;  // number of big particles associated with messages
 int MAX_TWEETS = 10;  // number of big particles associated with messages
 int NUM_HASHTAGS = 2;  // number of invisible particles associated with hashtags, acting as attractors
-int NUM_DOTS = 500; // number of small particles used to visualise the force field
+int NUM_DOTS = 300; // number of small particles used to visualise the force field
 //int MESSAGE_SIZE = 150; // pixel size of floating messages
 //int MESSAGE_SCALE = 7;
 int MESSAGE_W = 200;
@@ -455,7 +455,7 @@ void initPhysicsTest() {
   getHashtags(hashtagsFile);
   getTweets();
   println("particles number = "+physics.particles.size());
-  if (physics.particles.size()<NUM_DOTS) {
+  if (physics.particles.size()<(NUM_DOTS+NUM_TWEETS)) {
       for (int i=0; i<NUM_DOTS; i++) {
       addDot(width/2, height/2);
       
